@@ -1,0 +1,140 @@
+name: sra-segment-routing
+prefix: ""
+mgmt:
+  network: mngt   #anysec
+  ipv4-subnet: 172.50.50.0/24
+
+topology:
+  kinds:
+    nokia_sros:
+      type: sr-1x-48d
+      image: vrnetlab/nokia_sros:24.10.R3
+      license: /home/huy/license-sros24.txt
+
+    nokia_srlinux:
+      image: ghcr.io/nokia/srlinux:24.10.1
+      type: ixrd2l
+
+  nodes:
+
+# P routers
+    p1:
+      kind: nokia_sros
+      mgmt-ipv4: 172.50.50.11
+      ports:
+        - 2001:22
+      startup-config: ./config/ip-addesses-done/P1-config.txt
+
+    p2:
+      kind: nokia_sros
+      mgmt-ipv4: 172.50.50.12
+      ports:
+        - 2002:22
+      startup-config: ./config/ip-addesses-done/P2-config.txt
+
+    p3:
+      kind: nokia_sros
+      mgmt-ipv4: 172.50.50.13
+      #type: SR-1
+      #resources:
+      #  memory: 6g
+      ports:
+        - 2003:22
+      startup-config: ./config/ip-addesses-done/P3-config.txt
+
+    p4:
+      kind: nokia_sros
+      mgmt-ipv4: 172.50.50.14
+      ports:
+        - 2004:22
+      startup-config: ./config/ip-addesses-done/P4-config.txt
+
+# PE routers
+    pe1-r5:
+      kind: nokia_sros
+      mgmt-ipv4: 172.50.50.15
+      ports:
+        - 2005:22
+      startup-config: ./config/ip-addesses-done/pe1-r5-config.txt
+
+    pe2-r6:
+      kind: nokia_sros
+      mgmt-ipv4: 172.50.50.16
+      ports:
+        - 2006:22
+      startup-config: ./config/ip-addesses-done/pe2-r6-config.txt
+
+    pe3-r7:
+      kind: nokia_sros
+      mgmt-ipv4: 172.50.50.17
+      ports:
+        - 2007:22
+      startup-config: ./config/ip-addesses-done/pe3-r7-config.txt
+
+    pe4-r8:
+      kind: nokia_sros
+      mgmt-ipv4: 172.50.50.18
+      ports:
+        - 2008:22
+      startup-config: ./config/ip-addesses-done/pe4-r8-config.txt
+
+    # CE routers
+    ce1-r9:
+      kind: nokia_srlinux
+      #image: ghcr.io/nokia/srlinux
+      mgmt-ipv4: 172.50.50.19
+      ports:
+        - 2009:22
+
+    ce2-r10:
+      kind: nokia_srlinux
+      mgmt-ipv4: 172.50.50.20
+      #image: ghcr.io/nokia/srlinux
+      ports:
+        - 2010:22
+
+    ce3-r11:
+      kind: nokia_srlinux
+      mgmt-ipv4: 172.50.50.21
+      #image: ghcr.io/nokia/srlinux
+      ports:
+        - 2011:22
+
+    ce4-r12:
+      kind: nokia_srlinux
+      mgmt-ipv4: 172.50.50.22
+# image: ghcr.io/nokia/srlinux
+      ports:
+        - 2012:22
+# links	  
+  links:
+    
+    # Core links
+    - endpoints: ["p1:eth2", "p2:eth1"]
+    - endpoints: ["p1:eth3", "p3:eth1"]
+    - endpoints: ["p1:eth4", "p4:eth1"]
+    - endpoints: ["p2:eth3", "p3:eth2"]
+    - endpoints: ["p2:eth4", "p4:eth2"]
+    - endpoints: ["p3:eth4", "p4:eth3"]
+
+    # PE links
+    - endpoints: ["pe1-r5:eth1", "p1:eth5"]
+    - endpoints: ["pe1-r5:eth2", "p2:eth5"]
+    - endpoints: ["pe2-r6:eth1", "p1:eth6"]
+    - endpoints: ["pe2-r6:eth2", "p2:eth6"]
+    - endpoints: ["pe3-r7:eth3", "p3:eth7"]
+    - endpoints: ["pe3-r7:eth4", "p4:eth7"]
+    - endpoints: ["pe4-r8:eth3", "p3:eth8"]
+    - endpoints: ["pe4-r8:eth4", "p4:eth8"]
+
+    # CE links
+    - endpoints: ["pe1-r5:eth6", "pe2-r6:eth5"]
+    - endpoints: ["pe2-r6:eth8", "pe4-r8:eth6"]
+    - endpoints: ["pe4-r8:eth7", "pe3-r7:eth8"]
+    - endpoints: ["pe3-r7:eth1", "pe1-r5:eth7"]
+    #CE links to SRL nodes
+    - endpoints: ["pe1-r5:eth9", "ce1-r9:e1-1"]
+    - endpoints: ["pe2-r6:eth10", "ce2-r10:e1-1"]
+    - endpoints: ["pe4-r8:eth12", "ce4-r12:e1-1"]
+    - endpoints: ["pe3-r7:eth11", "ce3-r11:e1-1"]
+##################################################
